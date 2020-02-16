@@ -1,6 +1,6 @@
 import csv
 import heapq
-from flask import Flask, render_template
+from flask import Flask, render_template, g
 from markupsafe import escape
 from systems import System, Sectors
 
@@ -13,7 +13,7 @@ def index_page():
 @app.route('/form')
 def form():
     return '''
-        <form method="post">
+        <form method="get">
             <p><input type=text name=username>
             <p><input type=submit value=Login>
         </form>
@@ -22,16 +22,15 @@ def form():
 @app.route('/system/<name>')
 def get_coords(name):
     system = System(name, sectors=sectors)
-    return '%s' % escape(system.name) + ' ' + str(system.coordinates) + ' ' + str(system.error)
+    return render_template('system.html', system=system)
 
 @app.route('/closest/<name>')
 def get_closest(name):
     position = System(name)
     head = heapq.nsmallest(100, systems, key=lambda a : a.distance(position))
-    response = '%s' % escape(position.name) + ' ' + str(position.coordinates) + '<br> <br>'
-    for system in head:
-        response += '{} {} {} {}<br>'.format(escape(system.name), str(system.coordinates), str(system.error), str(round(position.distance(system), 2)))
-    return response
+    distances = [round(position.distance(system), 2) for system in head]
+
+    return render_template('closest.html', position=position, rows=zip(head, distances)) 
 
 
 def load_systems(filename):
@@ -40,7 +39,7 @@ def load_systems(filename):
     with open(filename, newline='') as file:
         csvreader = csv.reader(file)
         next(csvreader)
-        begin, end = 0, 30000000
+        begin, end = 0, 30000
         for i, row in enumerate(csvreader):
             if begin <= i < end:
                 systems.append(System(row[1], sectors=sectors))

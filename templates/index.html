@@ -1,17 +1,12 @@
-<!DOCTYPE html>
-<html lang="en-US">
-  <head>
-    <title>Elite Dangerous System Coordinates</title>
-  </head>
-  <body>
-    <a href="/system/Greae Hypai LF-D d13-422">Example system</a>
-    <p title="A title">Some text here</p>
-    <button style="color:red">Some<br>button</button>
-    <hr>
-    <ol>
-      <li>List item 1</li>
-      <li>List item 2</li>
-      <li>Third item</li>
-    </ol>
-  </body>
-</html>
+{% extends 'base.html' %}
+
+{% block header %}
+<li>Home</li>
+<li><a href="{{ url_for('get_coords', name='Sol') }}">Coordinats from name</a></li>
+<li><a href="{{ url_for('get_closest', name='Sol') }}">Closest systems wihout coordinates</a></li>
+{% endblock %}
+
+{% block content %}
+<h1>Homepage</h1>
+<p>You can find here systems without coordinates that are closest to your position or compute coordinates from name of the system.</p>
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block header %}
+<li><a href="{{ url_for('index_page') }}">Home</a></li>
+<li>Coordinats from name</li>
+<li><a href="{{ url_for('get_closest', name='Sol') }}">Closest systems wihout coordinates</a></li>
+{% endblock %}
+
+{% block content %}
+<p>{{ system.name }} {{ system.coordinates }} {{ system.error }}</p>
+{% endblock %}
