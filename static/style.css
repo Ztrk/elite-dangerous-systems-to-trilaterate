@@ -1,3 +1,44 @@
 html {
     font-family: "Open Sans", sans-serif;
 }
+
+/* Styling navigation bar */
+nav {
+    border-bottom: solid dimgray;
+    color: dimgray;
+}
+
+nav li {
+    list-style-type: square;
+}
+
+nav a {
+    text-decoration: none;
+    color: dimgray;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+.selected {
+    color: orange;
+    font-weight: bold;
+}
+
+/* Styling table */
+table {
+    border: 2px solid;
+    border-collapse: collapse;
+    background-color: #eeeeee;
+}
+
+thead {
+    background-color: #aaaaaa;
+}
+
+td, th {
+    border: 2px solid;
+    padding: 2px 20px;
+    margin: 0px
+}

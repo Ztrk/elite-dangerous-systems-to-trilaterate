@@ -2,20 +2,20 @@
 
 {% block header %}
 <li><a href="{{ url_for('index_page') }}">Home</a></li>
-<li><a href="{{ url_for('get_coords', name='Sol') }}">Coordinats from name</a></li>
-<li>Closest systems wihout coordinates</li>
+<li><a href="{{ url_for('get_coords', name='Sol') }}">Coordinates from name</a></li>
+<li class="selected">Closest systems without coordinates</li>
 {% endblock %}
 
 {% block content %}
 <p>{{ position.name }} {{ position.coordinates}}</p>
 <table>
   <thead>
-    <th>Name</th>
-    <th>x</th>
-    <th>y</th>
-    <th>z</th>
-    <th>Error</th>
-    <th>Distance</th>
+    <th scope="col">Name</th>
+    <th scope="col">x</th>
+    <th scope="col">y</th>
+    <th scope="col">z</th>
+    <th scope="col">Error</th>
+    <th scope="col">Distance</th>
   </thead>
   <tbody>
     {% for system, distance in rows %}
@@ -24,7 +24,6 @@
         <td>{{ system.coordinates[0] }}</td>
         <td>{{ system.coordinates[1] }}</td>
         <td>{{ system.coordinates[2] }}</td>
-        <td>{{ system.error }}</td>
         <td>{{ system.error }}</td>
         <td>{{ distance }}</td>
       </tr>

@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<li>Home</li>
-<li><a href="{{ url_for('get_coords', name='Sol') }}">Coordinats from name</a></li>
-<li><a href="{{ url_for('get_closest', name='Sol') }}">Closest systems wihout coordinates</a></li>
+<li class="selected">Home</li>
+<li><a href="{{ url_for('get_coords', name='Sol') }}">Coordinates from name</a></li>
+<li><a href="{{ url_for('get_closest', name='Sol') }}">Closest systems without coordinates</a></li>
 {% endblock %}
 
 {% block content %}
