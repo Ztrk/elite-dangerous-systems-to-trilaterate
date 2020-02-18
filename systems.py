@@ -1,3 +1,4 @@
+import json
 from math import sqrt
 import re
 import requests
@@ -41,7 +42,18 @@ class Sector:
                 self.get_origin_from_coordinates(coordinates)
     
     def __repr__(self):
-        return 'Sector({}, {}, {})'.format(self.name, self.origin, self.hand_placed)
+        return "Sector('{}', {}, {})".format(self.name, self.origin, self.hand_placed)
+    
+    def __keys__(self):
+        return (self.name, self.origin)
+    
+    def __eq__(self, other):
+        if isinstance(other, Sector):
+            return self.__keys__() == other.__keys__()
+        return False
+    
+    def __hash__(self):
+        return hash(self.__keys__)
 
     def get_origin_from_coordinates(self, coords):
         """Computes sector origin from given coords"""
@@ -133,43 +145,60 @@ class System:
             return
 
         origin = sectors.get_origin(self.sector_name, self.cube_size)
+        self.error = self.cube_size/2
         if origin is None:
             origin = (0, 0, 0)
+            self.error = self.error * 10000
 
         size = self.cube_size
         index = self.cube_index
         self.relative = (size * (index % 128), size * (index//128 % 128), size * (index//(128 * 128)))
         self.coordinates = (origin[0] + size/2 + self.relative[0],
             origin[1] + size/2 + self.relative[1], origin[2] + size/2 + self.relative[2])
-        self.error = size/2
 
 
 class Sectors:
-    sectors_file = 'resources/sectors.yaml'
-    def __init__(self, allow_new=False):
+    def __init__(self, sectors_file='resources/sectors.yaml', allow_new=False):
         self.allow_new = allow_new
-        self.sectors = self.read_sectors(self.sectors_file)
+        self.sectors_file = sectors_file
+        self.read_sectors()
 
-    def read_sectors(self, filename):
+    def read_sectors(self):
         print('Reading sectors')
-        with open(filename, 'r') as file:
+        with open(self.sectors_file, 'r') as file:
             data = load(file, Loader=Loader)
         if data is None:
-            return {}
-        return data
+            self.sectors = {}
+        else:
+            self.sectors = data
 
-    def write_sectors(self, filename, sectors):
+    def write_sectors(self):
         print('Writing sectors')
-        with open(filename, 'w') as file:
-            dump(sectors, file, Dumper=Dumper)
+        with open(self.sectors_file, 'w') as file:
+            dump(self.sectors, file, Dumper=Dumper)
         print('Sectors written')
+    
+    def sectors_from_json(self, filename='resources/systemsWithCoordinates.json'):
+        with open(filename, 'r') as file:
+            for i, line in enumerate(file):
+                if len(line) > 2:
+                    if line[-2] == ',':
+                        line = line[:-2]
+                    system_dict = json.loads(line)
+                    coords = system_dict['coords']
+                    system = System(system_dict['name'], (coords['x'], coords['y'], coords['z']))
+                    if system.sector_name is not None and system.sector_name not in self.sectors:
+                        print(i, system.sector_name)
+                        sector = Sector(system.sector_name, system.coordinates, is_origin=False)
+                        self.sectors[system.sector_name] = sector
+        self.write_sectors()
 
     def get_origin(self, name, size):
         if name not in self.sectors:
             if self.allow_new:
                 self.sectors[name] = Sector(name)
                 origin = self.sectors[name].get_origin(size)
-                self.write_sectors(self.sectors_file, self.sectors)
+                self.write_sectors()
                 return origin
             else:
                 return None

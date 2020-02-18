@@ -36,12 +36,8 @@ def load_systems(filename):
     with open(filename, newline='') as file:
         csvreader = csv.reader(file)
         next(csvreader)
-        begin, end = 0, 30000
         for i, row in enumerate(csvreader):
-            if begin <= i < end:
-                systems.append(System(row[1], sectors=sectors))
-            if i == end:
-                break
+            systems.append(System(row[1], sectors=sectors))
         print('Number of systems:', i)
     return systems
 
