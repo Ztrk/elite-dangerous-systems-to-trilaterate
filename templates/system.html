@@ -1,10 +1,21 @@
 {% extends 'base.html' %}
+
 {% block header %}
-<li><a href="{{ url_for('index_page') }}">Home</a></li>
-<li class="selected">Coordinates from name</li>
-<li><a href="{{ url_for('get_closest', name='Sol') }}">Closest systems without coordinates</a></li>
+  <li><a href="{{ url_for('index_page') }}">Home</a></li>
+  <li class="selected">Coordinates from name</li>
+  <li><a href="{{ url_for('get_closest') }}">Closest systems without coordinates</a></li>
 {% endblock %}
 
 {% block content %}
-<p>{{ system.name }} {{ system.coordinates }} {{ system.error }}</p>
+  <h1>Compute system coordinates from name</h1>
+
+  <form action="{{ url_for('get_coords') }}" method="GET">
+    <label for="system">System name</label>
+    <input type="text" id="system" name="system">
+    <button type="submit">Get coordinates</button>
+  </form>
+
+  {% if system is defined %}
+    <p>{{ system.name }} {{ system.coordinates }} {{ system.error }}</p>
+  {% endif %}
 {% endblock %}

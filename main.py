@@ -1,6 +1,6 @@
 import csv
 import heapq
-from flask import Flask, render_template, g
+from flask import Flask, request, render_template
 from markupsafe import escape
 from systems import System, Sectors
 
@@ -10,28 +10,25 @@ app = Flask(__name__)
 def index_page():
     return render_template('index.html')
 
-@app.route('/form')
-def form():
-    return '''
-        <form method="get">
-            <p><input type=text name=username>
-            <p><input type=submit value=Login>
-        </form>
-    '''
+@app.route('/system')
+def get_coords():
+    name = request.args.get('system', None)
+    if name is not None:
+        system = System(name, sectors=sectors)
+        return render_template('system.html', system=system)
+    else:
+        return render_template('system.html')
 
-@app.route('/system/<name>')
-def get_coords(name):
-    system = System(name, sectors=sectors)
-    return render_template('system.html', system=system)
-
-@app.route('/closest/<name>')
-def get_closest(name):
-    position = System(name)
-    head = heapq.nsmallest(100, systems, key=lambda a : a.distance(position))
-    distances = [round(position.distance(system), 2) for system in head]
-
-    return render_template('closest.html', position=position, rows=zip(head, distances)) 
-
+@app.route('/closest')
+def get_closest():
+    name = request.args.get('system', None)
+    if name is not None:
+        position = System(name)
+        head = heapq.nsmallest(100, systems, key=lambda a : a.distance(position))
+        distances = [position.distance(system) for system in head]
+        return render_template('closest.html', position=position, rows=zip(head, distances)) 
+    else:
+        return render_template('closest.html')
 
 def load_systems(filename):
     print('Reading systems data')
