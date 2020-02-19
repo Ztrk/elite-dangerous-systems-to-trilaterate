@@ -102,11 +102,13 @@ class System:
             self.error = 0
             self.relative = (0, 0, 0)
     
+    def distance2(self, other):
+        return ((self.coordinates[0] - other.coordinates[0]) ** 2
+            + (self.coordinates[1] - other.coordinates[1]) ** 2
+            + (self.coordinates[2] - other.coordinates[2]) ** 2)
+
     def distance(self, other):
-        dist = 0
-        for c1, c2 in zip(self.coordinates, other.coordinates):
-            dist += (c1 - c2) ** 2
-        return sqrt(dist)
+        return sqrt(self.distance2(other))
     
     def parse_name(self):
         """Calculate sector_name, cube_size and cube_index"""

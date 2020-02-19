@@ -25,7 +25,7 @@ def get_closest():
     name = request.args.get('system', None)
     if name is not None:
         position = System(name)
-        head = heapq.nsmallest(100, systems, key=lambda a : a.distance(position))
+        head = heapq.nsmallest(100, systems, key=lambda a : a.distance2(position))
         distances = [position.distance(system) for system in head]
         return render_template('closest.html', position=position, rows=zip(head, distances)) 
     else:
