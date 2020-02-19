@@ -1,6 +1,7 @@
 import csv
 import heapq
 import logging
+import random
 from flask import Flask, request, render_template
 from markupsafe import escape
 from systems import System, Sectors
@@ -19,6 +20,34 @@ def get_coords():
         return render_template('system.html', system=system)
     else:
         return render_template('system.html')
+
+def nth_element_util(list, n, begin, end, keys=None):
+    if begin + 1 >= end:
+        return
+    # partition
+    pivot_index = random.randint(begin, end - 1)
+    pivot = keys[pivot_index]
+    i, j = begin - 1, end
+    while i < j:
+        i += 1
+        j -= 1
+        while keys[i] < pivot:
+            i += 1
+        while keys[j] > pivot:
+            j -= 1
+        if i < j:
+            list[i], list[j] = list[j], list[i]
+            keys[i], keys[j] = keys[j], keys[i]
+    if n <= j:
+        nth_element_util(list, n, begin, j + 1, keys=keys)
+    else:
+        nth_element_util(list, n, j + 1, end, keys=keys)
+
+def nth_element(list, n, key=None):
+    if key is None:
+        key = lambda a : a
+    keys = [key(e) for e in list]
+    nth_element_util(list, n, 0, len(list), keys=keys)
 
 @app.route('/closest')
 def get_closest():
