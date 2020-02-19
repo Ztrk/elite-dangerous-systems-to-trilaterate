@@ -1,5 +1,6 @@
 import csv
 import heapq
+import logging
 from flask import Flask, request, render_template
 from markupsafe import escape
 from systems import System, Sectors
@@ -31,15 +32,16 @@ def get_closest():
         return render_template('closest.html')
 
 def load_systems(filename):
-    print('Reading systems data')
+    logging.info('Reading systems data')
     systems = []
     with open(filename, newline='') as file:
         csvreader = csv.reader(file)
         next(csvreader)
         for i, row in enumerate(csvreader):
             systems.append(System(row[1], sectors=sectors))
-        print('Number of systems:', i)
+        logging.info('Number of systems read: %d', i)
     return systems
 
+logging.basicConfig(level=logging.INFO)
 sectors = Sectors()
 systems = load_systems('resources/systems-without-coordinates.csv')

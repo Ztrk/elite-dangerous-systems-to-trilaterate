@@ -1,4 +1,5 @@
 import json
+import logging
 from math import sqrt
 import re
 import requests
@@ -16,7 +17,7 @@ def get_systems(name, multiple=True):
         url = 'https://www.edsm.net/api-v1/system'
     system_name = {'systemName': name, 'showCoordinates': 1, 'onlyKnownCoordinates': 1}
     response = requests.get(url, system_name)
-    print(name, 'Systems in response:', len(response.json()))
+    logging.info('Name: %s, Systems in response: %d', name, len(response.json()))
     return response.json()
 
 def get_system_coords(name):
@@ -164,7 +165,7 @@ class Sectors:
         self.read_sectors()
 
     def read_sectors(self):
-        print('Reading sectors')
+        logging.info('Reading sectors')
         with open(self.sectors_file, 'r') as file:
             data = load(file, Loader=Loader)
         if data is None:
@@ -173,10 +174,10 @@ class Sectors:
             self.sectors = data
 
     def write_sectors(self):
-        print('Writing sectors')
+        logging.info('Writing sectors')
         with open(self.sectors_file, 'w') as file:
             dump(self.sectors, file, Dumper=Dumper)
-        print('Sectors written')
+        logging.info('Sectors written')
     
     def sectors_from_json(self, filename='resources/systemsWithCoordinates.json'):
         with open(filename, 'r') as file:
@@ -188,7 +189,7 @@ class Sectors:
                     coords = system_dict['coords']
                     system = System(system_dict['name'], (coords['x'], coords['y'], coords['z']))
                     if system.sector_name is not None and system.sector_name not in self.sectors:
-                        print(i, system.sector_name)
+                        logging.debug('Line: %d, sector: %s', i, system.sector_name)
                         sector = Sector(system.sector_name, system.coordinates, is_origin=False)
                         self.sectors[system.sector_name] = sector
         self.write_sectors()
