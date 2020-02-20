@@ -4,6 +4,7 @@ import logging
 import random
 from flask import Flask, request, render_template
 from markupsafe import escape
+from kd_tree import KdTree
 from systems import System, Sectors
 
 app = Flask(__name__)
@@ -21,56 +22,35 @@ def get_coords():
     else:
         return render_template('system.html')
 
-def nth_element_util(list, n, begin, end, keys=None):
-    if begin + 1 >= end:
-        return
-    # partition
-    pivot_index = random.randint(begin, end - 1)
-    pivot = keys[pivot_index]
-    i, j = begin - 1, end
-    while i < j:
-        i += 1
-        j -= 1
-        while keys[i] < pivot:
-            i += 1
-        while keys[j] > pivot:
-            j -= 1
-        if i < j:
-            list[i], list[j] = list[j], list[i]
-            keys[i], keys[j] = keys[j], keys[i]
-    if n <= j:
-        nth_element_util(list, n, begin, j + 1, keys=keys)
-    else:
-        nth_element_util(list, n, j + 1, end, keys=keys)
-
-def nth_element(list, n, key=None):
-    if key is None:
-        key = lambda a : a
-    keys = [key(e) for e in list]
-    nth_element_util(list, n, 0, len(list), keys=keys)
-
 @app.route('/closest')
 def get_closest():
     name = request.args.get('system', None)
     if name is not None:
         position = System(name)
-        head = heapq.nsmallest(100, systems, key=lambda a : a.distance2(position))
-        distances = [position.distance(system) for system in head]
-        return render_template('closest.html', position=position, rows=zip(head, distances)) 
+        nodes = kd_tree.nearest_neighbour(position.coordinates, 100)
+        nearest = [node.data for node in nodes]
+        distances = [position.distance(system) for system in nearest]
+        return render_template('closest.html', position=position, rows=zip(nearest, distances)) 
     else:
         return render_template('closest.html')
 
 def load_systems(filename):
     logging.info('Reading systems data')
     systems = []
+    coords = []
     with open(filename, newline='') as file:
         csvreader = csv.reader(file)
         next(csvreader)
         for i, row in enumerate(csvreader):
-            systems.append(System(row[1], sectors=sectors))
+            system = System(row[1], sectors=sectors)
+            systems.append(system)
+            coords.append(system.coordinates)
         logging.info('Number of systems read: %d', i)
-    return systems
+    return systems, coords
 
 logging.basicConfig(level=logging.INFO)
 sectors = Sectors()
-systems = load_systems('resources/systems-without-coordinates.csv')
+systems, coordinates = load_systems('resources/systems-without-coordinates.csv')
+logging.info('Creating tree')
+kd_tree = KdTree(coordinates, systems)
+logging.info('Tree created')
