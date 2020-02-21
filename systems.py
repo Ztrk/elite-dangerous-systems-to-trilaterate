@@ -38,7 +38,7 @@ class Sector:
             self.compute_origin()
         else:
             if is_origin:
-                self.origin = coordinates
+                self.origin = tuple(coordinates)
             else:
                 self.get_origin_from_coordinates(coordinates)
     
@@ -196,6 +196,23 @@ class Sectors:
                         logging.debug('Line: %d, sector: %s', i, system.sector_name)
                         sector = Sector(system.sector_name, system.coordinates, is_origin=False)
                         self.sectors[system.sector_name] = sector
+        self.write_sectors()
+    
+    def read_ha_sectors(self, filename='resources/ha-sectors.txt'):
+        name_regex = re.compile(r'sector\.HARegion\("([^"]+)"')
+        coords_regex = re.compile(r'vector3\.Vector3\(([-\d.]+), ([-\d.]+), ([-\d.]+)\), ([\d.]+)')
+        with open(filename, 'r') as file:
+            for row in file:
+                name_match = name_regex.search(row)
+                coords_match = coords_regex.search(row)
+                if name_match is not None and coords_match is not None:
+                    coords = []
+                    for i in range(1, 4):
+                        x = float(coords_match.group(i)) - float(coords_match.group(4))
+                        x -= (x + 5) % 10
+                        coords.append(x)
+                    sector = Sector(name_match.group(1), coords, hand_placed=True)
+                    self.sectors[name_match.group(1)] = sector
         self.write_sectors()
 
     def get_origin(self, name, size):

@@ -1,4 +1,5 @@
 import unittest
+import logging
 from systems import System, Sectors, Sector, get_systems
 
 class TestSystems(unittest.TestCase):
@@ -15,18 +16,32 @@ class TestSystems(unittest.TestCase):
     
     def test_systems_against_edsm(self):
         self.sectors = Sectors()
-        self.check_systems_in_sector('Corona Austr. Dark Region AA')
+        self.check_systems_in_sector('ICZ')
+        self.check_systems_in_sector('Regor Sector')
+        self.check_systems_in_sector('Retina Sector')
+        self.check_systems_in_sector('Red Spider Sector')
+        self.check_systems_in_sector('Ghost of Jupiter Sector')
+        self.check_systems_in_sector('NGC')
+        self.check_systems_in_sector('Col 1')
+        self.check_systems_in_sector('Col 2')
+        self.check_systems_in_sector("Barnard's Loop")
+        self.check_systems_in_sector('Horsehead Sector')
+        self.check_systems_in_sector('Bleia')
 
     def test_reading_from_json(self):
+        # clear test file
+        with open('resources/testSectorsEmpty.yaml', 'w'):
+            pass            
         self.sectors = Sectors('resources/testSectorsEmpty.yaml')
         self.assertDictEqual(self.sectors.sectors, {})
         self.sectors.sectors_from_json('resources/testSystemsWithCoordinates.json')
         self.assertNotEqual(self.sectors.sectors, {})
+
+    def test_reading_from_json_small(self):
         # clear test file
         with open('resources/testSectorsEmpty.yaml', 'w'):
             pass            
 
-    def test_reading_from_json_small(self):
         self.sectors = Sectors('resources/testSectorsEmpty.yaml')
         self.assertDictEqual(self.sectors.sectors, {})
         self.sectors.sectors_from_json('resources/testSystemsWithCoordinatesSmall.json')
@@ -49,9 +64,15 @@ class TestSystems(unittest.TestCase):
         }
         self.assertDictEqual(self.sectors.sectors, expected)
             
+    def test_reading_ha_sectors(self):
         # clear test file
         with open('resources/testSectorsEmpty.yaml', 'w'):
             pass            
+
+        self.sectors = Sectors('resources/testSectorsEmpty.yaml')
+        self.sectors.read_ha_sectors('resources/ha-sectors.txt')
+        self.assertEqual(len(self.sectors.sectors), 465)
+
 
 if __name__ == '__main__':
     unittest.main()
