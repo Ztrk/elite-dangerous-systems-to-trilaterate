@@ -1,7 +1,5 @@
 import csv
-import heapq
 import logging
-import random
 from flask import Flask, request, render_template
 from markupsafe import escape
 from kd_tree import KdTree
@@ -41,16 +39,15 @@ def load_systems(filename):
     with open(filename, newline='') as file:
         csvreader = csv.reader(file)
         next(csvreader)
-        for i, row in enumerate(csvreader):
-            system = System(row[1], sectors=sectors)
-            systems.append(system)
-            coords.append(system.coordinates)
-        logging.info('Number of systems read: %d', i)
+        systems = [System(row[1], sectors=sectors) for row in csvreader]
+        coords = [system.coordinates for system in systems]
+        logging.info('Number of systems read: %d', len(systems))
     return systems, coords
 
 logging.basicConfig(level=logging.INFO)
 sectors = Sectors()
 systems, coordinates = load_systems('resources/systems-without-coordinates.csv')
+
 logging.info('Creating tree')
 kd_tree = KdTree(coordinates, systems)
 logging.info('Tree created')

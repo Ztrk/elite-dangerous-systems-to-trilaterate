@@ -89,6 +89,8 @@ class Sector:
 
 
 class System:
+    name_regex = re.compile(r'([A-Z]{2}-[A-Z]) ([a-h])(\d+)(-\d+)?')
+
     def __init__(self, name, coordinates=None, sectors=None):
         self.name = name
         self.parse_name()
@@ -112,7 +114,7 @@ class System:
     
     def parse_name(self):
         """Calculate sector_name, cube_size and cube_index"""
-        match = re.search(r'([A-Z]{2}-[A-Z]) ([a-h])(\d+)(-\d+)?', self.name)
+        match = self.name_regex.search(self.name)
         if match is None:
             self.sector_name = None
             self.cube_size = None

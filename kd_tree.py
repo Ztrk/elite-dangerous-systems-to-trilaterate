@@ -21,9 +21,6 @@ class KdTree:
 
 class KdNode:
     def __init__(self, points, dim):
-        self.create_tree(points, dim)
-
-    def create_tree(self, points, dim):
         self.left_child = None
         self.right_child = None
         self.split_dim = dim
