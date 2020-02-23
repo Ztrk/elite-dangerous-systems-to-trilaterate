@@ -1,4 +1,4 @@
-import csv
+import json
 import logging
 from flask import Flask, request, render_template
 from markupsafe import escape
@@ -36,17 +36,16 @@ def load_systems(filename):
     logging.info('Reading systems data')
     systems = []
     coords = []
-    with open(filename, newline='') as file:
-        csvreader = csv.reader(file)
-        next(csvreader)
-        systems = [System(row[1], sectors=sectors) for row in csvreader]
+    with open(filename, 'r') as file:
+        systems_json = json.load(file)
+        systems = [System(row['name'], sectors=sectors) for row in systems_json]
         coords = [system.coordinates for system in systems]
         logging.info('Number of systems read: %d', len(systems))
     return systems, coords
 
 logging.basicConfig(level=logging.INFO)
 sectors = Sectors()
-systems, coordinates = load_systems('resources/systems-without-coordinates.csv')
+systems, coordinates = load_systems('resources/systemsWithoutCoordinates.json')
 
 logging.info('Creating tree')
 kd_tree = KdTree(coordinates, systems)
